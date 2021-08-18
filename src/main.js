@@ -1,9 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index'
-import axios from "axios";
 import { createStore} from "vuex";
-
+import Pagination from 'v-pagination-3';
 
 const store = createStore({
     state: {
@@ -18,21 +17,22 @@ const store = createStore({
         }
     },
     actions: {
-        fetchingMoviesData(context)
+        fetchingMoviesData(context, event)
         {
+            let axios = require('axios');
             console.log('inside action')
-            var config = {
+            let config = {
                 method: 'get',
-                url: 'https://api.themoviedb.org/3/search/movie?api_key=56bce017dad37c06d00fdd35c76dfaee&query=' + store.state.searchedInput,
+                url: 'https://api.themoviedb.org/3/search/movie?api_key=56bce017dad37c06d00fdd35c76dfaee&query=' + store.state.searchedInput + '&page=' + event,
                 headers: { }
             };
 
             axios(config)
                 .then(function (response) {
-                    console.log(response.data);
-                    console.log(response.data.results)
+                    console.log(response.data, 'event is', event);
+                    console.log('response full results', response.data.results)
                     context.commit('updatingMoviesState', {
-                        movieResults: response.data.results,
+                        movieResults: response.data,
                     })
                 })
                 .catch(function (error) {
@@ -52,4 +52,4 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faSearch)
 
-createApp(App).component('FontAwesomeIcon', FontAwesomeIcon).use(router, axios).use(store).mount('#app')
+createApp(App).component('FontAwesomeIcon', FontAwesomeIcon).component('pagination', Pagination).use(router).use(store).mount('#app')
